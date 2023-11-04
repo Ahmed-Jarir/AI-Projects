@@ -109,7 +109,6 @@ def depthFirstSearch(problem: SearchProblem):
 
             GoalPath = getGoalPath(moves, currentState)
             return list(filter(lambda item: item is not None, map(lambda state: state[1][1],GoalPath)))
-            # return  GoalPath
 
             
         for successor in problem.getSuccessors(currentState[1][0]):
@@ -129,13 +128,16 @@ def breadthFirstSearch(problem: SearchProblem):
     currentState = problem.getStartState()
     queue = util.Queue()
     queue.push([0 , [currentState, None, None]])
-    visited = [currentState]
+    visited = []
     moves   = {}
 
     i = 0
     while not queue.isEmpty():
 
         currentState = queue.pop()
+        if currentState[1][0] in visited:
+            continue
+        visited.append(currentState[1][0])
 
         i += 1
         moves[i] = currentState
@@ -170,8 +172,6 @@ def uniformCostSearch(problem: SearchProblem):
 
         currentState = queue.pop()
         if currentState[1][0] in visited:
-            # print(f"currstt: {currentState}")
-            # print(f"visited : {visited}")
             continue
         visited.append(currentState[1][0])
 
@@ -186,14 +186,10 @@ def uniformCostSearch(problem: SearchProblem):
             
         for nextState, move, cost in problem.getSuccessors(currentState[1][0]):
 
-            # print(successor[2])
-            # if successor[0] not in visited:
             newCost = cost + currentState[1][2]
             queue.push([i, (nextState, move, newCost)], newCost)
-                # visited.append(currentState[1][0])
     return []
 
-    util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
     """
@@ -205,41 +201,40 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    def getGoalPath(moves, goalState):
+        movesToGoal = [goalState]
+        while movesToGoal[0][0] > 1:
+            movesToGoal.insert(0, moves[movesToGoal[0][0]])
+        return movesToGoal
 
-    # def getGoalPath(moves, goalState):
-    #     movesToGoal = [goalState]
-    #     while movesToGoal[0][0] > 1:
-    #         movesToGoal.insert(0, moves[movesToGoal[0][0]])
-    #     return movesToGoal
+    currentState = problem.getStartState()
+    queue = util.PriorityQueue()
+    queue.push([0 , [currentState, None, 0]], 0)
+    visited = []
+    moves   = {}
 
-    # currentState = problem.getStartState()
-    # queue = util.PriorityQueue()
-    # queue.push([0 , [currentState, None, None]], 0)
-    # visited = [currentState]
-    # moves   = {}
+    i = 0
+    while not queue.isEmpty():
 
-    # i = 0
-    # while not queue.isEmpty():
+        currentState = queue.pop()
+        if currentState[1][0] in visited:
+            continue
+        visited.append(currentState[1][0])
 
-    #     currentState = queue.pop()
-
-    #     i += 1
-    #     moves[i] = currentState
+        i += 1
+        moves[i] = currentState
          
-    #     if problem.isGoalState(currentState[1][0]):
+        if problem.isGoalState(currentState[1][0]):
 
-    #         GoalPath = getGoalPath(moves, currentState)
-    #         return list(filter(lambda item: item is not None, map(lambda state: state[1][1],GoalPath)))
-    #         # return  GoalPath
+            GoalPath = getGoalPath(moves, currentState)
+            return list(filter(lambda item: item is not None, map(lambda state: state[1][1],GoalPath)))
 
             
-    #     for successor in problem.getSuccessors(currentState[1][0]):
-    #         if successor[0] not in visited:
-    #             queue.push([i, successor], heuristic(currentState[1][0], problem) + successor[2])
-    #             visited.append(successor[0])
-    # return []
-    util.raiseNotDefined()
+        for nextState, move, cost in problem.getSuccessors(currentState[1][0]):
 
+            newCost = cost + currentState[1][2]
+            queue.push([i, (nextState, move, newCost)], newCost + heuristic(nextState, problem))
+    return []
 
 # Abbreviations
 bfs = breadthFirstSearch
