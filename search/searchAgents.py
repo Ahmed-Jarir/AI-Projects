@@ -152,7 +152,7 @@ class PositionSearchProblem(search.SearchProblem):
         """
         Stores the start and goal.
 
-        gameState: A GameState object (pacman.py)
+        gameState: A GameState object (pacman.py)visited.append(current[0]
         costFn: A function from a search state (tuple) to a non-negative number
         goal: A position in the gameState
         """
@@ -377,7 +377,14 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    if state[0] in corners:
+        return 0
+    distanceToCorners = []
+    for corner in corners:
+        if corner not in state[1]:
+            distanceToCorners.append(util.manhattanDistance(state[0], corner))
+
+    return min(distanceToCorners) # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
