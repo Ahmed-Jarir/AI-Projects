@@ -161,7 +161,7 @@ def uniformCostSearch(problem: SearchProblem):
 
     currentState = problem.getStartState()
     queue = util.PriorityQueue()
-    queue.push([0 , [currentState, None, None]], 0)
+    queue.push([0 , [currentState, None, 0]], 0)
     visited = []
     moves   = {}
 
@@ -184,11 +184,12 @@ def uniformCostSearch(problem: SearchProblem):
             return list(filter(lambda item: item is not None, map(lambda state: state[1][1],GoalPath)))
 
             
-        for successor in problem.getSuccessors(currentState[1][0]):
+        for nextState, move, cost in problem.getSuccessors(currentState[1][0]):
 
             # print(successor[2])
             # if successor[0] not in visited:
-            queue.push([i, successor], successor[2])
+            newCost = cost + currentState[1][2]
+            queue.push([i, (nextState, move, newCost)], newCost)
                 # visited.append(currentState[1][0])
     return []
 
