@@ -110,7 +110,6 @@ def depthFirstSearch(problem: SearchProblem):
             GoalPath = getGoalPath(moves, currentState)
             return list(filter(lambda item: item is not None, map(lambda state: state[1][1],GoalPath)))
 
-        print(currentState)
         for successor in problem.getSuccessors(currentState[1][0]):
             if successor[0] not in visited:
                 stack.push([i, successor])

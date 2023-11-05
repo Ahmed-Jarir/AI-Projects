@@ -490,7 +490,29 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    print(f"\n{foodGrid}\n")
+    from functools import reduce
+    if not reduce(lambda a,b : a or b, [item for sublist in foodGrid for item in sublist]):
+        return 0
+
+    pBits = foodGrid.packBits()
+    width = pBits[0]
+    height = pBits[1]
+    corners = [(0,0), (0, height - 1), (width - 1, 0), (width - 1, height- 1)]
+    distanceToCorners = []
+    from itertools import permutations
+    cornerPermutations = permutations(corners)
+    for cornerPermutation in cornerPermutations:
+
+
+        distance = util.manhattanDistance(position, cornerPermutation[0])
+        for cornerIdx in range(len(cornerPermutation) - 1):
+            distance += util.manhattanDistance(cornerPermutation[cornerIdx], cornerPermutation[cornerIdx + 1])
+        distanceToCorners.append(distance)
+        #jmp
+
+
+    return min(distanceToCorners)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -521,7 +543,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.bfs(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -557,7 +579,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        return self.food[x][y]
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """
