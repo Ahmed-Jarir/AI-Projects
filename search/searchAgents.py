@@ -490,18 +490,30 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    print(f"\n{foodGrid}\n")
-    from functools import reduce
-    if not reduce(lambda a,b : a or b, [item for sublist in foodGrid for item in sublist]):
+    # print(f"\n{foodGrid}\n")
+    # from functools import reduce
+    foodPointsList = foodGrid.asList()
+    if len(foodPointsList) == 0:
         return 0
 
-    pBits = foodGrid.packBits()
-    width = pBits[0]
-    height = pBits[1]
-    corners = [(0,0), (0, height - 1), (width - 1, 0), (width - 1, height- 1)]
+    #rework the logic
+    midpoint = position
+    calcMP = lambda p1,p2: ((p1[0] + p2[0])/2, (p1[1] + p2[1])/2)
+    furthestSevenFoodPoints = [ ]
+    for _ in range(5):
+        if len(foodPointsList) == len(furthestSevenFoodPoints): break
+        #finds the furthest element from all the points in furthestSevenFoodPoints array and append it to the array
+        furthestSevenFoodPoints.append(max([(foodPoint, util.manhattanDistance(midpoint, foodPoint)) for foodPoint in foodPointsList if foodPoint not in furthestSevenFoodPoints], key  = lambda x : x[1])[0])
+        midpoint = calcMP(midpoint, furthestSevenFoodPoints[len(furthestSevenFoodPoints) - 1])
+    # print(furthestSevenFoodPoints)
+
+    # pBits = foodGrid.packBits()
+    # width = pBits[0]
+    # height = pBits[1]
+    # corners = [(0,0), (0, height - 1), (width - 1, 0), (width - 1, height- 1)]
     distanceToCorners = []
     from itertools import permutations
-    cornerPermutations = permutations(corners)
+    cornerPermutations = permutations(furthestSevenFoodPoints)
     for cornerPermutation in cornerPermutations:
 
 
