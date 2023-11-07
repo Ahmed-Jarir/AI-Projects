@@ -378,7 +378,6 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
 
     "*** YOUR CODE HERE ***"
 
-
     currentPosition, visitedCorners = state
     if len(corners) == len(visitedCorners):
         return 0
@@ -490,8 +489,6 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    # print(f"\n{foodGrid}\n")
-    # from functools import reduce
     foodPointsList = foodGrid.asList()
     if len(foodPointsList) == 0:
         return 0
@@ -505,26 +502,25 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         #finds the furthest element from all the points in furthestSevenFoodPoints array and append it to the array
         furthestSevenFoodPoints.append(max([(foodPoint, util.manhattanDistance(midpoint, foodPoint)) for foodPoint in foodPointsList if foodPoint not in furthestSevenFoodPoints], key  = lambda x : x[1])[0])
         midpoint = calcMP(midpoint, furthestSevenFoodPoints[len(furthestSevenFoodPoints) - 1])
-    # print(furthestSevenFoodPoints)
 
-    # pBits = foodGrid.packBits()
-    # width = pBits[0]
-    # height = pBits[1]
-    # corners = [(0,0), (0, height - 1), (width - 1, 0), (width - 1, height- 1)]
-    distanceToCorners = []
+    distanceToPoints = []
     from itertools import permutations
-    cornerPermutations = permutations(furthestSevenFoodPoints)
-    for cornerPermutation in cornerPermutations:
+    pointPermutations = permutations(furthestSevenFoodPoints)
+    for pointPermutation in pointPermutations:
 
 
-        distance = util.manhattanDistance(position, cornerPermutation[0])
-        for cornerIdx in range(len(cornerPermutation) - 1):
-            distance += util.manhattanDistance(cornerPermutation[cornerIdx], cornerPermutation[cornerIdx + 1])
-        distanceToCorners.append(distance)
-        #jmp
+        distance = util.manhattanDistance(position, pointPermutation[0])
+        for pointIdx in range(len(pointPermutation) - 1):
+            distance += util.manhattanDistance(pointPermutation[pointIdx], pointPermutation[pointIdx + 1])
+        distanceToPoints.append((distance, pointPermutation))
 
-
-    return min(distanceToCorners)
+    distanceToPoints2 = []
+    for _,points in sorted(distanceToPoints,key=lambda x: x[0])[:10]:
+        distance = mazeDistance(position, points[0], problem.startingGameState)
+        for pointIdx in range(len(points) - 1):
+            distance += mazeDistance(points[pointIdx], points[pointIdx + 1],problem.startingGameState)
+        distanceToPoints2.append(distance)
+    return min(distanceToPoints2)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
