@@ -496,19 +496,20 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     #rework the logic
     midpoint = position
     calcMP = lambda p1,p2: ((p1[0] + p2[0])/2, (p1[1] + p2[1])/2)
-    furthestSevenFoodPoints = [ ]
+    spreadFoodPoints = [ ]
+    #finding the 5 most spread out foodpoints
     for _ in range(5):
-        if len(foodPointsList) == len(furthestSevenFoodPoints): break
+        if len(foodPointsList) == len(spreadFoodPoints): break
         #finds the furthest element from all the points in furthestSevenFoodPoints array and append it to the array
-        furthestSevenFoodPoints.append(max([(foodPoint, util.manhattanDistance(midpoint, foodPoint)) for foodPoint in foodPointsList if foodPoint not in furthestSevenFoodPoints], key  = lambda x : x[1])[0])
-        midpoint = calcMP(midpoint, furthestSevenFoodPoints[len(furthestSevenFoodPoints) - 1])
+        spreadFoodPoints.append(max([(foodPoint, util.manhattanDistance(midpoint, foodPoint)) for foodPoint in foodPointsList if foodPoint not in spreadFoodPoints], key  = lambda x : x[1])[0])
+        midpoint = calcMP(midpoint, spreadFoodPoints[len(spreadFoodPoints) - 1])
 
     distanceToPoints = []
+
     from itertools import permutations
-    pointPermutations = permutations(furthestSevenFoodPoints)
+    pointPermutations = permutations(spreadFoodPoints)
+
     for pointPermutation in pointPermutations:
-
-
         distance = util.manhattanDistance(position, pointPermutation[0])
         for pointIdx in range(len(pointPermutation) - 1):
             distance += util.manhattanDistance(pointPermutation[pointIdx], pointPermutation[pointIdx + 1])
