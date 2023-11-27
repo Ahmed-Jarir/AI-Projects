@@ -250,7 +250,27 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    pacmanPos = currentGameState.getPacmanPosition()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+    ghostDist = sum(list(map(lambda x,y : 0 if manhattanDistance(x.getPosition(), pacmanPos) >= 16 or y >=32 else 9999 , ghostStates, scaredTimes)))
+    ghostScaredDist = sum(list(map(lambda x,y : manhattanDistance(x.getPosition(), pacmanPos) if y >= 32 else 0 , ghostStates, scaredTimes)))
+    foodList = currentGameState.getFood().asList()
+    if len(foodList) == 0 and ghostDist == 0:
+        return float('inf')
+
+    if len(foodList) == 0:
+        return 0
+    distanceToCorners = []
+    distance = util.manhattanDistance(pacmanPos, foodList[0])
+    for cornerIdx in range(len(foodList) - 1):
+        distance += manhattanDistance(foodList[cornerIdx], foodList[cornerIdx + 1])
+    distanceToCorners.append(distance)
+    foodLeft = len(foodList)
+    minDistToFood = sum(distanceToCorners)
+    
+    return -(ghostDist + foodLeft + minDistToFood - ghostScaredDist - currentGameState.getScore() - (1 if currentGameState.isWin() else 0) + (1 if currentGameState.isLose() else 0))
+    
 
 # Abbreviation
 better = betterEvaluationFunction
