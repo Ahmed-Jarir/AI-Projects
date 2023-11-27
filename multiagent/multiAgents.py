@@ -169,8 +169,42 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def minimaxHelp(agentIdx, depth, state, AgentsNum, alpha, beta):
+            actions = state.getLegalActions(agentIdx)
+            
+            if depth == 0 or len(actions) == 0:
+                return self.evaluationFunction(state)
+            scores = []
+            if agentIdx == 0:
+                v = float('-inf')
+                for action in actions:
+                    successor = state.generateSuccessor(agentIdx, action)
+                    nextIdx = (agentIdx+1)%AgentsNum
+                    newDepth = depth - (1 if nextIdx == 0 else 0)
+                    recScore = minimaxHelp(nextIdx, newDepth, successor, AgentsNum, alpha, beta)
+                    recScore = recScore[0] if type(recScore) == tuple else recScore
+                    v =  max(v, recScore)
+                    if v>beta:
+                        return (v,action)
+                    alpha = max(alpha, v)
+                    scores.append((recScore, action))
 
+            else:
+                v = float('inf')
+                for action in actions:
+                    successor = state.generateSuccessor(agentIdx, action)
+                    nextIdx = (agentIdx+1)%AgentsNum
+                    newDepth = depth - (1 if nextIdx == 0 else 0)
+                    recScore = minimaxHelp(nextIdx, newDepth, successor, AgentsNum, alpha, beta)
+                    recScore = recScore[0] if type(recScore) == tuple else recScore
+                    v =  min(v, recScore)
+                    if v<alpha:
+                        return (v,action)
+                    beta = min(beta, v)
+                    scores.append((recScore, action))
+
+            return (min if agentIdx > 0 else max)(scores, key=lambda x: x[0])
+        return minimaxHelp(0, self.depth, gameState,gameState.getNumAgents(), float('-inf'), float('inf'))[1]
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """4.0
       Your expectimax agent (question 4)
