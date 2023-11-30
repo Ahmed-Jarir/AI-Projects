@@ -78,9 +78,12 @@ class ReflexAgent(Agent):
         prevFoodList = currentGameState.getFood().asList()
         newFoodList = newFood.asList()
         GhostDist = sum(list(map(lambda x,y : 0 if manhattanDistance(x.getPosition(), newPos) >= 2 or y > 1 else 9999 , newGhostStates, newScaredTimes)))
+
+        if successorGameState.isWin() and GhostDist == 0:
+            return float("inf")
         foodDist = 0 if len(newFoodList) == 0 else min(list(map(lambda x: manhattanDistance(x, newPos), newFoodList)))
         foodEaten = len(prevFoodList) - len(newFoodList)
-        return -(GhostDist + (foodEaten if foodEaten == 1 else foodDist))
+        return successorGameState.getScore() -(GhostDist + (foodEaten if foodEaten == 1 else foodDist))
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
@@ -253,24 +256,13 @@ def betterEvaluationFunction(currentGameState: GameState):
     pacmanPos = currentGameState.getPacmanPosition()
     ghostStates = currentGameState.getGhostStates()
     scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
-    ghostDist = sum(list(map(lambda x,y : 0 if manhattanDistance(x.getPosition(), pacmanPos) >= 16 or y >=32 else 9999 , ghostStates, scaredTimes)))
-    ghostScaredDist = sum(list(map(lambda x,y : manhattanDistance(x.getPosition(), pacmanPos) if y >= 32 else 0 , ghostStates, scaredTimes)))
+    ghostDist = sum(list(map(lambda x,y : 0 if manhattanDistance(x.getPosition(), pacmanPos) > 3 or y >2 else 9999 , ghostStates, scaredTimes)))
+    if currentGameState.isWin() and ghostDist == 0:
+        return float("inf")
     foodList = currentGameState.getFood().asList()
-    if len(foodList) == 0 and ghostDist == 0:
-        return float('inf')
-
-    if len(foodList) == 0:
-        return 0
-    distanceToCorners = []
-    distance = util.manhattanDistance(pacmanPos, foodList[0])
-    for cornerIdx in range(len(foodList) - 1):
-        distance += manhattanDistance(foodList[cornerIdx], foodList[cornerIdx + 1])
-    distanceToCorners.append(distance)
+    score = currentGameState.getScore()
+    minDistToFood = 0 if len(foodList) == 0 else min(list(map(lambda x: manhattanDistance(x, pacmanPos), foodList)))
     foodLeft = len(foodList)
-    minDistToFood = sum(distanceToCorners)
-    
-    return -(ghostDist + foodLeft + minDistToFood - ghostScaredDist - currentGameState.getScore() - (1 if currentGameState.isWin() else 0) + (1 if currentGameState.isLose() else 0))
-    
-
+    return  score - (minDistToFood + foodLeft + ghostDist)
 # Abbreviation
 better = betterEvaluationFunction
